@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 
-/**
- * Authentication Middleware: Verifies Bearer JWT token from Authorization header.
- */
+
+// Authentication Middleware: Verifies Bearer JWT token from Authorization header.
 export function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = (authHeader && authHeader.startsWith('Bearer ') && authHeader.split(' ')[1]) || req.query.token;
@@ -17,7 +16,7 @@ export function authenticateToken(req, res, next) {
   try {
     const secret = process.env.JWT_SECRET || 'swarn_sathi_secure_jwt_secret_dev_key_2026';
     const decoded = jwt.verify(token, secret);
-    req.user = decoded; // { id, email, role, fullName, branchName }
+    req.user = decoded; 
     next();
   } catch (err) {
     return res.status(401).json({
@@ -27,10 +26,8 @@ export function authenticateToken(req, res, next) {
   }
 }
 
-/**
- * Role-Based Access Control (RBAC) Guard.
- * Enforces role checks on every server endpoint.
- */
+
+// Role-Based Access Control (RBAC) Guard.
 export function authorizeRoles(...allowedRoles) {
   return (req, res, next) => {
     if (!req.user) {

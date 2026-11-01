@@ -4,18 +4,13 @@ import jwt from 'jsonwebtoken';
 import { query } from '../db/index.js';
 import { logAudit } from '../services/auditService.js';
 
-/**
- * Generates a cryptographically secure 6-digit numeric code.
- */
+
 export function generateSixDigitCode() {
   const num = crypto.randomInt(100000, 1000000);
   return num.toString();
 }
 
-/**
- * POST /api/auth/request-code
- * Issues a 6-digit magic code, valid for 10 minutes, max 5 attempts.
- */
+
 export async function requestCode(req, res) {
   try {
     const email = (req.body?.email || '').trim().toLowerCase();
@@ -32,14 +27,12 @@ export async function requestCode(req, res) {
     );
 
     if (users.length === 0 || !users[0].is_active) {
-      // Security practice: Don't reveal if user doesn't exist, but here per brief, return clear friendly message
       return res.status(404).json({
         error: 'Not Found',
         message: 'No active staff account found with this email.',
       });
     }
 
-    const user = users[0];
 
     // 2. Generate 6-digit code and hash it
     const plainCode = generateSixDigitCode();
@@ -82,10 +75,7 @@ export async function requestCode(req, res) {
   }
 }
 
-/**
- * POST /api/auth/verify-code
- * Verifies code, enforces max 5 attempts, single-use, and returns JWT.
- */
+
 export async function verifyCode(req, res) {
   try {
     const email = (req.body?.email || '').trim().toLowerCase();
@@ -202,10 +192,7 @@ export async function verifyCode(req, res) {
   }
 }
 
-/**
- * GET /api/auth/me
- * Returns current authenticated user
- */
+
 export async function getCurrentUser(req, res) {
   return res.status(200).json({ user: req.user });
 }

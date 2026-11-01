@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '../store/authSlice.js';
 import { api } from '../services/api.js';
@@ -6,8 +6,6 @@ import {
   CheckSquare, 
   CheckCircle, 
   XCircle, 
-  Clock, 
-  AlertTriangle, 
   ShieldAlert, 
   User 
 } from 'lucide-react';

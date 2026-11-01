@@ -3,18 +3,13 @@ import { validateLoanSanction, validateManagerApproval } from '../services/loanE
 import { calculateDueStatus, allocateRepayment, getISTDateString } from '../services/interestEngineService.js';
 import { logAudit } from '../services/auditService.js';
 
-/**
- * Generates human-readable loan reference: SWN-YYYY-XXXX
- */
+
 function generateLoanReferenceNo(id) {
   const year = new Date().getFullYear();
   return `SWN-${year}-${String(id).padStart(5, '0')}`;
 }
 
-/**
- * POST /api/loans/sanction
- * Sanctions a loan against an appraisal
- */
+
 export async function sanctionLoan(req, res) {
   const client = await getClient();
   try {
@@ -53,9 +48,7 @@ export async function sanctionLoan(req, res) {
     const maturityDate = new Date(now);
     maturityDate.setMonth(maturityDate.getMonth() + Number(tenureMonths));
 
-    // Determine initial status:
-    // If loan > ₹3,00,000 => PENDING_APPROVAL (Branch Manager must approve)
-    // If <= ₹3,00,000 => DISBURSED immediately
+
     const initialStatus = validation.requiresApproval ? 'PENDING_APPROVAL' : 'DISBURSED';
     const disbursedAt = validation.requiresApproval ? null : now;
 
@@ -85,7 +78,7 @@ export async function sanctionLoan(req, res) {
       validation.ltvPercentage,
       validation.processingFeePaise,
       validation.netDisbursalPaise,
-      validation.principalPaise, // initial outstanding = principal
+      validation.principalPaise, 
       initialStatus,
       validation.requiresApproval,
       now,
@@ -138,10 +131,7 @@ export async function sanctionLoan(req, res) {
   }
 }
 
-/**
- * POST /api/loans/:id/approve
- * Manager approval endpoint with Maker-Checker enforcement
- */
+
 export async function approveLoan(req, res) {
   const client = await getClient();
   try {
@@ -204,10 +194,7 @@ export async function approveLoan(req, res) {
   }
 }
 
-/**
- * GET /api/loans/approvals-queue
- * Manager queue of loans pending approval
- */
+
 export async function getApprovalsQueue(req, res) {
   try {
     const sql = `
@@ -230,10 +217,7 @@ export async function getApprovalsQueue(req, res) {
   }
 }
 
-/**
- * GET /api/loans/:id/due-calculator
- * Live due calculator for any specified date
- */
+
 export async function getDueStatus(req, res) {
   try {
     const { id } = req.params;
@@ -267,10 +251,7 @@ export async function getDueStatus(req, res) {
   }
 }
 
-/**
- * POST /api/loans/:id/repayments
- * Records a repayment with Concurrency Lock, Idempotency Check & Allocation Rule
- */
+
 export async function recordRepayment(req, res) {
   const client = await getClient();
   try {
@@ -402,10 +383,7 @@ export async function recordRepayment(req, res) {
   }
 }
 
-/**
- * POST /api/loans/:id/close
- * Close loan and release gold (Allowed ONLY when outstanding is exactly 0)
- */
+
 export async function closeLoanAndReleaseGold(req, res) {
   const client = await getClient();
   try {
@@ -509,10 +487,7 @@ export async function closeLoanAndReleaseGold(req, res) {
   }
 }
 
-/**
- * GET /api/loans
- * Paginated loan list with filters
- */
+
 export async function getLoans(req, res) {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -564,10 +539,7 @@ export async function getLoans(req, res) {
   }
 }
 
-/**
- * GET /api/loans/:id
- * Single loan details with repayment history and appraisal
- */
+
 export async function getLoanById(req, res) {
   try {
     const { id } = req.params;

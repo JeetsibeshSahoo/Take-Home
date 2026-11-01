@@ -1,7 +1,3 @@
-/**
- * In-memory sliding window rate limiter for Magic Code requests.
- * Tracks attempts per IP address AND per email address.
- */
 const ipRequests = new Map();
 const emailRequests = new Map();
 
@@ -19,7 +15,7 @@ setInterval(() => {
     if (valid.length === 0) emailRequests.delete(key);
     else emailRequests.set(key, valid);
   }
-}, 5 * 60 * 1000).unref(); // .unref() ensures it doesn't keep Jest tests hanging open
+}, 5 * 60 * 1000).unref(); 
 
 export function magicCodeRateLimiter(req, res, next) {
   const ip = req.ip || req.connection?.remoteAddress || '127.0.0.1';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { 
   Scale, 
@@ -7,8 +7,6 @@ import {
   CheckCircle2, 
   AlertCircle, 
   ArrowRight,
-  TrendingUp,
-  Sparkles
 } from 'lucide-react';
 
 export default function AppraisalPage({ selectedCustomer, onAppraisalCreated }) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../store/authSlice.js';
 import { api } from '../services/api.js';
@@ -62,7 +62,6 @@ export default function LoginPage() {
 
     try {
       const res = await api.verifyCode(email.trim(), code.trim());
-      // Dispatch to Redux store
       dispatch(setCredentials({ token: res.token, user: res.user }));
     } catch (err) {
       setError(err.message || 'Invalid code.');

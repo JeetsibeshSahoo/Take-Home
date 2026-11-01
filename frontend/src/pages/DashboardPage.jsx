@@ -15,14 +15,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [rateHistory, setRateHistory] = useState([]);
   const [breaches, setBreaches] = useState([]);
-
-  // Admin Rate Updater
   const [newRateInr, setNewRateInr] = useState('');
   const [rateSuccess, setRateSuccess] = useState('');
   const [rateError, setRateError] = useState('');
   const [updatingRate, setUpdatingRate] = useState(false);
-
-  // CSV Export Dates
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 

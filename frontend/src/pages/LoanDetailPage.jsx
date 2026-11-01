@@ -1,19 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { 
-  CreditCard, 
-  Calendar, 
-  Coins, 
-  Scale, 
   ArrowLeft, 
-  Printer, 
-  CheckCircle2, 
-  AlertCircle, 
-  X, 
-  Clock, 
+  Printer,  
+  X,  
   FileCheck, 
-  ShieldCheck,
-  AlertTriangle 
 } from 'lucide-react';
 
 export default function LoanDetailPage({ loanId, onBack }) {
@@ -22,20 +13,14 @@ export default function LoanDetailPage({ loanId, onBack }) {
   const [closure, setClosure] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  // Live Due Calculator Date Picker
   const [calcDate, setCalcDate] = useState(new Date().toISOString().split('T')[0]);
   const [dueInfo, setDueInfo] = useState(null);
   const [calculatingDue, setCalculatingDue] = useState(false);
-
-  // Repayment Modal
   const [showRepayModal, setShowRepayModal] = useState(false);
   const [repayAmount, setRepayAmount] = useState('');
   const [idempotencyKey, setIdempotencyKey] = useState('');
   const [repayError, setRepayError] = useState('');
   const [repayLoading, setRepayLoading] = useState(false);
-
-  // Closure Modal
   const [showCloseModal, setShowCloseModal] = useState(false);
   const [releasedTo, setReleasedTo] = useState('');
   const [releaseNotes, setReleaseNotes] = useState('');
@@ -77,7 +62,6 @@ export default function LoanDetailPage({ loanId, onBack }) {
   const openRepayModal = () => {
     setRepayError('');
     setRepayAmount('');
-    // Auto-generate fresh unique idempotency key
     setIdempotencyKey(`IDEMP-${loanId}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`);
     setShowRepayModal(true);
   };

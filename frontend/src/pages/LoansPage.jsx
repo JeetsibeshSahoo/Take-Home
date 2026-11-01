@@ -1,15 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
-import { 
-  CreditCard, 
-  Search, 
-  Filter, 
-  ChevronRight, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle,
-  Calendar
-} from 'lucide-react';
+import { CreditCard } from 'lucide-react';
 
 export default function LoansPage({ onSelectLoan }) {
   const [loans, setLoans] = useState([]);

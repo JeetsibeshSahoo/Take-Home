@@ -1,6 +1,5 @@
 import { describe, test, expect } from '@jest/globals';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { generateSixDigitCode } from '../src/controllers/authController.js';
 import { authorizeRoles } from '../src/middleware/authMiddleware.js';
 

@@ -1,19 +1,6 @@
-/**
- * Gold Appraisal Engine for Swarn Sathi
- * 
- * Rules enforced:
- * - Accepted karats: 18, 20, 22, 24
- * - Purity factor: Karat / 24 (e.g., 22/24 = 0.916667)
- * - Net weight: gross_weight - stone_weight (per item)
- * - Appraised value: Net weight * purity factor * gold rate (in paise)
- */
-
 export const ACCEPTED_KARATS = [18, 20, 22, 24];
 
-/**
- * Calculates net weight for an individual item.
- * Throws error if stone weight exceeds gross weight.
- */
+
 export function calculateNetWeight(grossWeightGrams, stoneWeightGrams = 0) {
   const gross = Number(grossWeightGrams);
   const stone = Number(stoneWeightGrams);
@@ -32,9 +19,7 @@ export function calculateNetWeight(grossWeightGrams, stoneWeightGrams = 0) {
   return Math.round((gross - stone) * 1000) / 1000;
 }
 
-/**
- * Calculates appraised value for a single item in paise.
- */
+
 export function calculateItemValue(netWeightGrams, karat, goldRatePerGramPaise) {
   if (!ACCEPTED_KARATS.includes(Number(karat))) {
     throw new Error(`Invalid karat: ${karat}. Accepted karats are 18, 20, 22, 24.`);
@@ -50,9 +35,6 @@ export function calculateItemValue(netWeightGrams, karat, goldRatePerGramPaise) 
   };
 }
 
-/**
- * Evaluates a list of items and returns the total appraisal summary.
- */
 export function evaluateAppraisal(items, goldRatePerGramPaise) {
   if (!items || !Array.isArray(items) || items.length === 0) {
     throw new Error('At least one item is required for gold appraisal.');

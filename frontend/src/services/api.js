@@ -1,7 +1,3 @@
-/**
- * Centralized API service for Swarn Sathi Branch Console
- * Automatically injects the JWT token from localStorage and parses error responses.
- */
 const BASE_URL = '/api';
 
 async function request(endpoint, options = {}) {

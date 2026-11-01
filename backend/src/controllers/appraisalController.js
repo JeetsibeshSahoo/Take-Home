@@ -2,10 +2,7 @@ import { getClient, query } from '../db/index.js';
 import { evaluateAppraisal } from '../services/goldAppraisalService.js';
 import { logAudit } from '../services/auditService.js';
 
-/**
- * POST /api/appraisals
- * Create an immutable gold appraisal snapshot
- */
+
 export async function createAppraisal(req, res) {
   const client = await getClient();
   try {
@@ -115,10 +112,7 @@ export async function createAppraisal(req, res) {
   }
 }
 
-/**
- * GET /api/appraisals/:id
- * Retrieve appraisal snapshot details with items
- */
+
 export async function getAppraisalById(req, res) {
   try {
     const { id } = req.params;

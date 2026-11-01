@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
   selectIsAuthenticated, 
   selectAuthLoading, 
   checkAuthSession 
 } from './store/authSlice.js';
-
 import Navbar from './components/Navbar.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import CustomersPage from './pages/CustomersPage.jsx';
@@ -20,8 +19,6 @@ export default function App() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const authLoading = useSelector(selectAuthLoading);
-
-  // Active navigation tab
   const [activeTab, setActiveTab] = useState('customers');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedAppraisal, setSelectedAppraisal] = useState(null);

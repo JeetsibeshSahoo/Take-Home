@@ -1,9 +1,6 @@
 import { query } from '../db/index.js';
 
-/**
- * GET /api/audit
- * Immutable Audit Log Viewer (Branch Manager and Admin only)
- */
+
 export async function getAuditLogs(req, res) {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);

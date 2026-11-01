@@ -2,13 +2,9 @@ import { query } from '../db/index.js';
 import { logAudit } from '../services/auditService.js';
 import { getISTDateString } from '../services/interestEngineService.js';
 
-/**
- * GET /api/gold-rates/today
- * Returns current effective gold rate (24K) in paise and INR per gram.
- */
+
 export async function getTodayRate(req, res) {
   try {
-    const today = getISTDateString();
     // Get today's rate, or the most recent available rate
     const { rows } = await query(
       `SELECT gr.*, u.full_name as set_by_name 
@@ -41,10 +37,7 @@ export async function getTodayRate(req, res) {
   }
 }
 
-/**
- * POST /api/gold-rates
- * Set daily gold rate (Admin only)
- */
+
 export async function setDailyRate(req, res) {
   try {
     const { ratePerGramInr } = req.body;
@@ -92,10 +85,7 @@ export async function setDailyRate(req, res) {
   }
 }
 
-/**
- * GET /api/gold-rates/history
- * Rate history with LTV breach check on active loans (Tier 2 feature)
- */
+
 export async function getRateHistoryAndBreaches(req, res) {
   try {
     const [{ rows: history }, { rows: breaches }] = await Promise.all([

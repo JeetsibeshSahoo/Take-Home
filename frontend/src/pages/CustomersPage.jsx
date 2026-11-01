@@ -1,15 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { 
   Users, 
   UserPlus, 
   Search, 
   Phone, 
-  CreditCard, 
-  Shield, 
-  MapPin, 
-  Calendar, 
-  ChevronRight, 
   X, 
   AlertCircle,
   Scale
@@ -24,8 +19,6 @@ export default function CustomersPage({ onSelectCustomerForAppraisal }) {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
-
-  // Form state
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',

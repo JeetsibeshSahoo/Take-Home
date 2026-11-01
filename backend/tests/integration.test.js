@@ -24,7 +24,6 @@ describe('5. API Health & Security Middleware Tests', () => {
   });
 
   test('Customer creation rejects invalid PAN format', async () => {
-    // Fake token bypass for validation test
     const fakeToken = 'invalid-token';
     const res = await request(app)
       .post('/api/customers')
@@ -37,6 +36,6 @@ describe('5. API Health & Security Middleware Tests', () => {
         pan: 'INVALID_PAN',
         aadhaarLast4: '1234',
       });
-    expect(res.status).toBe(401); // Caught by auth middleware first
+    expect(res.status).toBe(401); 
   });
 });

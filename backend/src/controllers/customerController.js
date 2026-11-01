@@ -4,10 +4,7 @@ import { logAudit } from '../services/auditService.js';
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 const AADHAAR_LAST_4_REGEX = /^[0-9]{4}$/;
 
-/**
- * POST /api/customers
- * Create a new customer record
- */
+
 export async function createCustomer(req, res) {
   try {
     const { fullName, phone, dateOfBirth, address, pan, aadhaarLast4 } = req.body;
@@ -71,10 +68,7 @@ export async function createCustomer(req, res) {
   }
 }
 
-/**
- * GET /api/customers
- * Paginated list and search for customers by Name, Phone, or PAN
- */
+
 export async function getCustomers(req, res) {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -123,10 +117,7 @@ export async function getCustomers(req, res) {
   }
 }
 
-/**
- * GET /api/customers/:id
- * Retrieve customer details and their loan/appraisal history
- */
+
 export async function getCustomerById(req, res) {
   try {
     const { id } = req.params;

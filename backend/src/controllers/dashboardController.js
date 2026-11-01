@@ -1,18 +1,9 @@
 import { query } from '../db/index.js';
-import { calculateDueStatus, getISTDateString } from '../services/interestEngineService.js';
+import { calculateDueStatus } from '../services/interestEngineService.js';
 
-/**
- * GET /api/dashboard/stats
- * Portfolio Dashboard (Tier 2 requirement):
- * - Active loans
- * - Total outstanding principal
- * - Interest accrued today
- * - Overdue count and amount
- * - LTV breach count
- */
+
 export async function getDashboardStats(req, res) {
   try {
-    const today = getISTDateString();
 
     const { rows: activeLoans } = await query(`
       SELECT l.*, a.total_net_weight_grams, a.total_appraised_value_paise,
@@ -72,10 +63,7 @@ export async function getDashboardStats(req, res) {
   }
 }
 
-/**
- * GET /api/dashboard/export-csv
- * CSV export of loans for a date range (Tier 2 requirement)
- */
+
 export async function exportLoansCSV(req, res) {
   try {
     const { startDate, endDate } = req.query;

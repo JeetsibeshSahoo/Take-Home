@@ -1,19 +1,3 @@
-/**
- * Loan Rules Engine
- * 
- * Rules enforced:
- * 1. LTV Slabs (decided by requested principal):
- *    - Up to ₹2,00,000 (20,000,000 paise): 80% of appraised value
- *    - Above ₹2,00,000 to ₹5,00,000 (20,000,001 to 50,000,000 paise): 75%
- *    - Above ₹5,00,000 (> 50,000,000 paise): 70%
- * 2. Schemes:
- *    - Standard: 18% per year simple interest, tenure 3 to 12 months
- *    - Quick: 12% per year simple interest, tenure up to 3 months (1-3)
- * 3. Processing fee: 1% of principal, minimum ₹500 (50,000 paise), deducted from disbursal
- * 4. Approval: Loans > ₹3,00,000 (30,000,000 paise) require Branch Manager approval
- *    (Maker-Checker: Creator cannot be Approver)
- */
-
 export const SCHEMES = {
   STANDARD: {
     name: 'STANDARD',
@@ -29,35 +13,28 @@ export const SCHEMES = {
   },
 };
 
-export const APPROVAL_THRESHOLD_PAISE = 30000000; // ₹3,00,000 in paise
-export const MIN_PROCESSING_FEE_PAISE = 50000;    // ₹500 in paise
+export const APPROVAL_THRESHOLD_PAISE = 30000000; 
+export const MIN_PROCESSING_FEE_PAISE = 50000;   
 
-/**
- * Returns the maximum allowed LTV percentage based on requested principal.
- */
 export function getLtvSlab(principalPaise) {
   const principal = Number(principalPaise);
-  if (principal <= 20000000) { // Up to ₹2,00,000
+  if (principal <= 20000000) { 
     return { slabMaxPrincipal: 20000000, maxLtvPct: 80.0 };
-  } else if (principal <= 50000000) { // Up to ₹5,00,000
+  } else if (principal <= 50000000) { 
     return { slabMaxPrincipal: 50000000, maxLtvPct: 75.0 };
-  } else { // Above ₹5,00,000
+  } else { 
     return { slabMaxPrincipal: Infinity, maxLtvPct: 70.0 };
   }
 }
 
-/**
- * Calculates processing fee: 1% of principal, minimum ₹500.
- */
+
 export function calculateProcessingFee(principalPaise) {
   const principal = Number(principalPaise);
   const onePercent = Math.round(principal * 0.01);
   return Math.max(onePercent, MIN_PROCESSING_FEE_PAISE);
 }
 
-/**
- * Validates a loan application against all business constraints.
- */
+
 export function validateLoanSanction({
   principalPaise,
   appraisedValuePaise,
@@ -117,9 +94,7 @@ export function validateLoanSanction({
   };
 }
 
-/**
- * Validates Manager Approval rules (Maker-Checker).
- */
+
 export function validateManagerApproval(loan, approverUserId, approverRole) {
   if (approverRole !== 'BRANCH_MANAGER' && approverRole !== 'ADMIN') {
     throw new Error('Only a Branch Manager or Admin can approve loans.');

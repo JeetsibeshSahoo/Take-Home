@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { 
   FilePlus2, 
   ShieldAlert, 
-  CheckCircle, 
-  HelpCircle, 
-  Coins, 
+  CheckCircle,
   ArrowRight,
   Clock,
-  Percent,
   AlertTriangle
 } from 'lucide-react';
 
@@ -65,13 +62,9 @@ export default function NewLoanPage({ preselectedAppraisal, onLoanCreated }) {
     const maxAllowedPrincipal = Math.floor((appraisedVal * maxLtvPct) / 100);
     const actualLtvPct = appraisedVal > 0 ? (principal / appraisedVal) * 100 : 0;
     const isLtvBreached = principal > maxAllowedPrincipal;
-
-    // Processing Fee: 1% of principal, minimum ₹500 floor
     const onePct = Math.round(principal * 0.01);
     const processingFee = principal > 0 ? Math.max(onePct, 500) : 0;
     const netDisbursal = Math.max(0, principal - processingFee);
-
-    // Approval requirement: > ₹3,00,000 needs Branch Manager approval
     const requiresApproval = principal > 300000;
 
     return {

@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Ensure full height application layout */
 html, body, #root {
   min-height: 100vh;
   margin: 0;
@@ -8,7 +7,6 @@ html, body, #root {
   width: 100%;
 }
 
-/* Print styling for Loan Statements and Payment Receipts (Tier 2 requirement) */
 @media print {
   body {
     background: white !important;
