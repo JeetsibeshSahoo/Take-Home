@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* Ensure full height application layout */
+html, body, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Print styling for Loan Statements and Payment Receipts (Tier 2 requirement) */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .card-print {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
