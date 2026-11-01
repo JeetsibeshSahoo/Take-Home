@@ -9,9 +9,8 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     proxy: {
-      // Proxies frontend API calls to Express backend
       '/api': {
-        target: 'http://localhost:5000',
+        target: process.env.VITE_API_TARGET || 'http://localhost:5000',
         changeOrigin: true,
       },
     },
@@ -19,5 +18,11 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0',
     port: 5173,
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_TARGET || 'http://backend:5000',
+        changeOrigin: true,
+      },
+    },
   },
 });

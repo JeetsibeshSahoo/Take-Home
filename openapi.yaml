@@ -1,0 +1,367 @@
+openapi: 3.0.3
+info:
+  title: Swarn Sathi Gold Loan Branch Console API
+  description: OpenAPI 3.0 specification for Swarn Sathi branch operations including passwordless auth, KYC customer registration, gold appraisals, maker-checker loan approvals, daily interest calculations, and repayments.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local / Docker Development Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ==========================================
+  # AUTHENTICATION
+  # ==========================================
+  /auth/request-code:
+    post:
+      summary: Request 6-digit passwordless magic code
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  example: staff@swarnsathi.com
+      responses:
+        200:
+          description: Code generated and dispatched (printed to server console)
+        404:
+          description: No active staff account found with this email
+        429:
+          description: Rate limit exceeded (Max 5 requests per 15 mins)
+
+  /auth/verify-code:
+    post:
+      summary: Verify 6-digit code and receive JWT session token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                  example: staff@swarnsathi.com
+                code:
+                  type: string
+                  example: "481920"
+      responses:
+        200:
+          description: Authentication successful, returns JWT token and user details
+        400:
+          description: Invalid code, expired code, or maximum 5 attempts reached
+
+  /auth/me:
+    get:
+      summary: Get current authenticated staff member profile and role
+      responses:
+        200:
+          description: Authenticated user profile
+        401:
+          description: Missing or expired token
+
+  # ==========================================
+  # CUSTOMERS
+  # ==========================================
+  /customers:
+    get:
+      summary: Get paginated customer directory with search
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: search
+          in: query
+          schema:
+            type: string
+            description: Search by name, phone, or PAN
+      responses:
+        200:
+          description: Paginated customer list
+    post:
+      summary: Onboard a new customer (validates PAN regex & last 4 digits of Aadhaar)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fullName, phone, dateOfBirth, address, pan, aadhaarLast4]
+              properties:
+                fullName:
+                  type: string
+                  example: Debashis Chakraborty
+                phone:
+                  type: string
+                  example: "9831124680"
+                dateOfBirth:
+                  type: string
+                  format: date
+                  example: "1985-04-12"
+                address:
+                  type: string
+                  example: 24B Rashbehari Avenue, Kolkata
+                pan:
+                  type: string
+                  example: BKIPC8912M
+                aadhaarLast4:
+                  type: string
+                  example: "4391"
+      responses:
+        201:
+          description: Customer created successfully
+        400:
+          description: Validation error in PAN format or Aadhaar digits
+
+  # ==========================================
+  # GOLD APPRAISALS
+  # ==========================================
+  /appraisals:
+    post:
+      summary: Save immutable gold appraisal snapshot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, items]
+              properties:
+                customerId:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [description, grossWeightGrams, stoneWeightGrams, karat]
+                    properties:
+                      description:
+                        type: string
+                      grossWeightGrams:
+                        type: number
+                      stoneWeightGrams:
+                        type: number
+                      karat:
+                        type: integer
+                        enum: [18, 20, 22, 24]
+      responses:
+        201:
+          description: Immutable appraisal snapshot created
+
+  # ==========================================
+  # LOANS
+  # ==========================================
+  /loans/sanction:
+    post:
+      summary: Sanction a gold loan against an appraisal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [appraisalId, requestedPrincipalInr, scheme, tenureMonths]
+              properties:
+                appraisalId:
+                  type: integer
+                requestedPrincipalInr:
+                  type: number
+                  example: 250000
+                scheme:
+                  type: string
+                  enum: [STANDARD, QUICK]
+                tenureMonths:
+                  type: integer
+                  example: 6
+      responses:
+        201:
+          description: Loan created (Disbursed if <= 3L, or PENDING_APPROVAL if > 3L)
+
+  /loans/approvals-queue:
+    get:
+      summary: Get queue of loans pending Branch Manager approval (> ₹3,00,000)
+      responses:
+        200:
+          description: List of pending loans
+        403:
+          description: Forbidden - Branch Staff cannot view approvals queue
+
+  /loans/{id}/approve:
+    post:
+      summary: Manager approve or reject loan (Enforces Maker-Checker rule)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision:
+                  type: string
+                  enum: [APPROVE, REJECT]
+      responses:
+        200:
+          description: Decision processed successfully
+        400:
+          description: Maker-Checker violation (creator cannot approve)
+
+  /loans/{id}/due-calculator:
+    get:
+      summary: Live due calculator for any specified IST date
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+            description: Target date for calculation (defaults to today)
+      responses:
+        200:
+          description: Accrued interest, outstanding principal, and total due
+
+  /loans/{id}/repayments:
+    post:
+      summary: Record loan repayment (Concurrency locked, interest first, idempotency protected)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amountInr, idempotencyKey]
+              properties:
+                amountInr:
+                  type: number
+                  example: 50000
+                idempotencyKey:
+                  type: string
+                  example: IDEMP-1-173045-abc123
+                paymentDate:
+                  type: string
+                  format: date
+      responses:
+        201:
+          description: Repayment recorded
+        400:
+          description: Overpayment rejected or invalid loan status
+
+  /loans/{id}/close:
+    post:
+      summary: Close loan and release gold (Allowed strictly when outstanding balance is ₹0)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [releasedToName]
+              properties:
+                releasedToName:
+                  type: string
+                  example: Debashis Chakraborty
+                releaseNotes:
+                  type: string
+      responses:
+        200:
+          description: Loan closed and gold release receipt logged
+        400:
+          description: Balance pending (cannot close loan)
+
+  # ==========================================
+  # DASHBOARD & GOLD RATES
+  # ==========================================
+  /dashboard/stats:
+    get:
+      summary: Portfolio metrics (Active loans, outstanding principal, overdue loans, LTV breaches)
+      responses:
+        200:
+          description: Real-time dashboard statistics
+
+  /dashboard/export-csv:
+    get:
+      summary: Export loans report as CSV for audit reporting
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: Downloadable CSV file (Content-Type text/csv)
+
+  /gold-rates/today:
+    get:
+      summary: Get active daily 24K gold rate
+      responses:
+        200:
+          description: Active gold rate in INR and Paise per gram
+
+  /gold-rates:
+    post:
+      summary: Set daily gold rate (Admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ratePerGramInr]
+              properties:
+                ratePerGramInr:
+                  type: number
+                  example: 7250
+      responses:
+        200:
+          description: Gold rate updated
+        403:
+          description: Forbidden (Admin role required)
