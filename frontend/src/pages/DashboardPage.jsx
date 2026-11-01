@@ -44,12 +44,21 @@ export default function DashboardPage() {
 
   const handleUpdateRate = async (e) => {
     e.preventDefault();
+    if (!newRateInr) return;
+
+    const enteredRate = parseFloat(newRateInr);
+
+    // 1. INSTANT UPDATE: Changes top ticker in 0ms immediately!
+    window.dispatchEvent(new CustomEvent('gold-rate-updated', {
+      detail: { ratePerGramInr: enteredRate }
+    }));
+
     setRateError('');
     setRateSuccess('');
     setUpdatingRate(true);
 
     try {
-      const res = await api.setDailyRate(parseFloat(newRateInr));
+      const res = await api.setDailyRate(enteredRate);
       setRateSuccess(res.message);
       setNewRateInr('');
       fetchDashboardData();

@@ -42,6 +42,10 @@ export default function ApprovalsQueuePage({ onOpenLoan }) {
     try {
       const res = await api.approveLoan(loanId, decision);
       setSuccess(res.message);
+      
+      // Instantly update the red badge in the Navbar!
+      window.dispatchEvent(new Event('approvals-updated'));
+
       fetchQueue();
     } catch (err) {
       setError(err.message || 'Action failed.');

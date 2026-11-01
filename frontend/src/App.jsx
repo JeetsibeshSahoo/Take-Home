@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
   selectIsAuthenticated, 
   selectAuthLoading, 
   checkAuthSession 
 } from './store/authSlice.js';
+
 import Navbar from './components/Navbar.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import CustomersPage from './pages/CustomersPage.jsx';
@@ -19,10 +20,54 @@ export default function App() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const authLoading = useSelector(selectAuthLoading);
-  const [activeTab, setActiveTab] = useState('customers');
+
+  // Parse initial tab and loanId from URL hash (e.g. #loans, #loan-detail?id=2)
+  const getTabFromHash = () => {
+    const hash = window.location.hash.replace('#', '').trim();
+    if (!hash) return { tab: 'customers', loanId: null };
+    const [tabPart, queryPart] = hash.split('?');
+    const params = new URLSearchParams(queryPart || '');
+    return {
+      tab: tabPart || 'customers',
+      loanId: params.get('id') ? Number(params.get('id')) : null,
+    };
+  };
+
+  const initial = getTabFromHash();
+  const [activeTab, setActiveTabState] = useState(initial.tab);
+  const [selectedLoanId, setSelectedLoanId] = useState(initial.loanId);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedAppraisal, setSelectedAppraisal] = useState(null);
-  const [selectedLoanId, setSelectedLoanId] = useState(null);
+
+  // Sync state changes to browser URL hash
+  const navigateTo = (tab, loanId = null) => {
+    setActiveTabState(tab);
+    if (loanId) {
+      setSelectedLoanId(loanId);
+      window.location.hash = `${tab}?id=${loanId}`;
+    } else {
+      window.location.hash = tab;
+    }
+  };
+
+  // Listen for browser Back/Forward buttons and hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const { tab, loanId } = getTabFromHash();
+      setActiveTabState(tab);
+      if (loanId) setSelectedLoanId(loanId);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Clear URL hash when logged out so signin page URL stays clean: http://localhost:5173/
+  useEffect(() => {
+    if (!isAuthenticated && window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, [isAuthenticated]);
 
   // Restore session on mount
   useEffect(() => {
@@ -47,14 +92,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar activeTab={activeTab} setActiveTab={(tab) => navigateTo(tab)} />
 
       <main className="flex-1">
         {activeTab === 'customers' && (
           <CustomersPage
             onSelectCustomerForAppraisal={(customer) => {
               setSelectedCustomer(customer);
-              setActiveTab('appraisal');
+              navigateTo('appraisal');
             }}
           />
         )}
@@ -64,7 +109,7 @@ export default function App() {
             selectedCustomer={selectedCustomer}
             onAppraisalCreated={(appraisal) => {
               setSelectedAppraisal(appraisal);
-              setActiveTab('new-loan');
+              navigateTo('new-loan');
             }}
           />
         )}
@@ -73,8 +118,7 @@ export default function App() {
           <NewLoanPage
             preselectedAppraisal={selectedAppraisal}
             onLoanCreated={(loanId) => {
-              setSelectedLoanId(loanId);
-              setActiveTab('loan-detail');
+              navigateTo('loan-detail', loanId);
             }}
           />
         )}
@@ -82,8 +126,7 @@ export default function App() {
         {activeTab === 'loans' && (
           <LoansPage
             onSelectLoan={(loanId) => {
-              setSelectedLoanId(loanId);
-              setActiveTab('loan-detail');
+              navigateTo('loan-detail', loanId);
             }}
           />
         )}
@@ -91,15 +134,14 @@ export default function App() {
         {activeTab === 'loan-detail' && (
           <LoanDetailPage
             loanId={selectedLoanId}
-            onBack={() => setActiveTab('loans')}
+            onBack={() => navigateTo('loans')}
           />
         )}
 
         {activeTab === 'approvals' && (
           <ApprovalsQueuePage
             onOpenLoan={(loanId) => {
-              setSelectedLoanId(loanId);
-              setActiveTab('loan-detail');
+              navigateTo('loan-detail', loanId);
             }}
           />
         )}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
   selectCurrentUser, 
@@ -43,10 +43,33 @@ export default function Navbar({ activeTab, setActiveTab }) {
         // Fallback silently if rate is not yet set
       }
     }
+
     fetchNavbarInfo();
+
+    // Instant zero-delay rate update
+    const handleInstantRateUpdate = (e) => {
+      const newRate = e.detail?.ratePerGramInr;
+      if (newRate) {
+        setTodayRate((prev) => (prev ? { ...prev, ratePerGramInr: newRate } : { ratePerGramInr: newRate }));
+      }
+    };
+
+    window.addEventListener('approvals-updated', fetchNavbarInfo);
+    window.addEventListener('gold-rate-updated', handleInstantRateUpdate);
     const interval = setInterval(fetchNavbarInfo, 30000);
-    return () => clearInterval(interval);
+
+    return () => {
+      window.removeEventListener('approvals-updated', fetchNavbarInfo);
+      window.removeEventListener('gold-rate-updated', handleInstantRateUpdate);
+      clearInterval(interval);
+    };
   }, [isManager, isAdmin]);
+
+  const handleLogout = () => {
+    // Clear URL hash immediately on logout
+    window.history.replaceState(null, '', window.location.pathname);
+    dispatch(logout());
+  };
 
   const navItems = [
     { id: 'customers', label: 'Customers', icon: Users },
@@ -107,7 +130,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
               </span>
             </div>
             <button
-              onClick={() => dispatch(logout())}
+              onClick={handleLogout}
               title="Sign Out"
               className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
             >
